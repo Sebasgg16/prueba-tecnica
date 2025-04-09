@@ -45,27 +45,38 @@ describe('user controller test',()=>{
         expect(response.body).toHaveProperty('msg', `${email} is already exist in database`)
     })
 
+    it("NO deberia registrar un usurio si no tiene un email", async ()=> {
+        const email= ""
+        const password="$Clave123456"
 
-    it('No deberia registrar si el email no es valido', async () =>{
-        const email = 'juan@juancom'
-        const password = '#Clave1234'
+        const response = await request (app).post("/api/register")
+                                            .send({"email":email, "password":password})
+        
 
-        const response = await request(app)
-                                .post('/api/register')
-                                 .send({email: email, password: password})
-                                 
-        expect( response.statusCode).toBe(400)
-        expect(response.body).toHaveProperty('msg',`${email} this emain is not valitd`)
-
-
- 
+       expect(response.body.msg.email).toHaveProperty("msg","Ups!! Email is required")
+        expect(response.statusCode).toBe(400)
+        
     })
-    it('NO deberia registrar si no cuenta con un email', async () =>{
-        const email = ''
-        const password = '#Clave12345'
-        const response = await request(app)
-                                .post('/api/register')
-                                 .send({email: email, password: password})
+
+    it("NO deberia registrar si el email no es valido", async ()=>{
+        const email= "juan"
+        const password= "$Clave123456"
+         const response = await request (app).post("/api/register")
+                                             .send ({email, password})
+                                    
+        expect(response.body.msg.email).toHaveProperty("msg", "Email is invalid!!")
+        expect(response.statusCode).toBe(400)
     })
+
+    it("NO deberia registrar si la contraseÃ±a no es de tipado fuerte", async()=>{
+        const email= "juan@1234.com"
+        const password= "2345"
+
+        const response =await request (app).post("/api/register")
+                                           .send ({email, password})
+
+        expect(response.body.msg.password).toHaveProperty("msg", "Hey!! pasword must contain at least, uppercase, lowercase, numbers and characters")
+        expect(response.status).toBe(400)   
+    })  
 
 })
